@@ -10,7 +10,7 @@
 #import "SDWebImageManager.h"
 
 @interface SDWebImagePrefetcher ()
-@property (nonatomic, retain) NSArray *prefetchURLs;
+@property (nonatomic, strong) NSArray *prefetchURLs;
 @end
 
 @implementation SDWebImagePrefetcher
@@ -37,7 +37,7 @@ static SDWebImagePrefetcher *instance;
 {
     if (index >= [self.prefetchURLs count]) return;
     _requestedCount++;
-    [imageManager downloadWithURL:[self.prefetchURLs objectAtIndex:index] delegate:self options:self.options];
+    [imageManager downloadWithURL:(self.prefetchURLs)[index] delegate:self options:self.options];
 }
 
 - (void)reportStatus
@@ -107,7 +107,6 @@ static SDWebImagePrefetcher *instance;
 
 - (void)dealloc
 {
-    self.prefetchURLs = nil;
     SDWISuperDealoc;
 }
 

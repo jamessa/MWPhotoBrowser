@@ -17,7 +17,7 @@ NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartN
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 
 @interface SDWebImageDownloader ()
-@property (nonatomic, retain) NSURLConnection *connection;
+@property (nonatomic, strong) NSURLConnection *connection;
 @end
 
 @implementation SDWebImageDownloader
@@ -207,7 +207,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
                 UIImage *image = SDScaledImageForPath(url.absoluteString, [UIImage imageWithCGImage:partialImageRef]);
                 [[SDWebImageDecoder sharedImageDecoder] decodeImage:image
                                                        withDelegate:self
-                                                           userInfo:[NSDictionary dictionaryWithObject:@"partial" forKey:@"type"]];
+                                                           userInfo:@{@"type": @"partial"}];
 
                 CGImageRelease(partialImageRef);
             }

@@ -55,7 +55,7 @@ static natural_t get_free_memory(void)
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        diskCachePath = SDWIReturnRetained([[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"]);
+        diskCachePath = SDWIReturnRetained([paths[0] stringByAppendingPathComponent:@"ImageCache"]);
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
         {
@@ -141,8 +141,8 @@ static natural_t get_free_memory(void)
     // Can't use defaultManager another thread
     NSFileManager *fileManager = [[NSFileManager alloc] init];
 
-    NSString *key = [keyAndData objectAtIndex:0];
-    NSData *data = [keyAndData count] > 1 ? [keyAndData objectAtIndex:1] : nil;
+    NSString *key = keyAndData[0];
+    NSData *data = [keyAndData count] > 1 ? keyAndData[1] : nil;
 
     if (data)
     {
@@ -171,10 +171,10 @@ static natural_t get_free_memory(void)
 
 - (void)notifyDelegate:(NSDictionary *)arguments
 {
-    NSString *key = [arguments objectForKey:@"key"];
-    id <SDImageCacheDelegate> delegate = [arguments objectForKey:@"delegate"];
-    NSDictionary *info = [arguments objectForKey:@"userInfo"];
-    UIImage *image = [arguments objectForKey:@"image"];
+    NSString *key = arguments[@"key"];
+    id <SDImageCacheDelegate> delegate = arguments[@"delegate"];
+    NSDictionary *info = arguments[@"userInfo"];
+    UIImage *image = arguments[@"image"];
 
     if (image)
     {
@@ -182,7 +182,7 @@ static natural_t get_free_memory(void)
         {
             [memCache removeAllObjects];
         }    
-        [memCache setObject:image forKey:key];
+        memCache[key] = image;
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
         {
@@ -200,7 +200,7 @@ static natural_t get_free_memory(void)
 
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
-    NSString *key = [arguments objectForKey:@"key"];
+    NSString *key = arguments[@"key"];
     NSMutableDictionary *mutableArguments = SDWIReturnAutoreleased([arguments mutableCopy]);
 
     UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
@@ -213,7 +213,7 @@ static natural_t get_free_memory(void)
             image = decodedImage;
         }
 
-        [mutableArguments setObject:image forKey:@"image"];
+        mutableArguments[@"image"] = image;
     }
 
     [self performSelectorOnMainThread:@selector(notifyDelegate:) withObject:mutableArguments waitUntilDone:NO];
@@ -232,18 +232,18 @@ static natural_t get_free_memory(void)
     {
         [memCache removeAllObjects];
     }
-    [memCache setObject:image forKey:key];
+    memCache[key] = image;
 
     if (toDisk)
     {
         NSArray *keyWithData;
         if (data)
         {
-            keyWithData = [NSArray arrayWithObjects:key, data, nil];
+            keyWithData = @[key, data];
         }
         else
         {
-            keyWithData = [NSArray arrayWithObjects:key, nil];
+            keyWithData = @[key];
         }
 
         NSInvocationOperation *operation = SDWIReturnAutoreleased([[NSInvocationOperation alloc] initWithTarget:self
@@ -276,7 +276,7 @@ static natural_t get_free_memory(void)
         return nil;
     }
 
-    UIImage *image = [memCache objectForKey:key];
+    UIImage *image = memCache[key];
 
     if (!image && fromDisk)
     {
@@ -287,7 +287,7 @@ static natural_t get_free_memory(void)
             {
                 [memCache removeAllObjects];
             }
-            [memCache setObject:image forKey:key];
+            memCache[key] = image;
         }
     }
 
@@ -311,7 +311,7 @@ static natural_t get_free_memory(void)
     }
 
     // First check the in-memory cache...
-    UIImage *image = [memCache objectForKey:key];
+    UIImage *image = memCache[key];
     if (image)
     {
         // ...notify delegate immediately, no need to go async
@@ -323,11 +323,11 @@ static natural_t get_free_memory(void)
     }
 
     NSMutableDictionary *arguments = [NSMutableDictionary dictionaryWithCapacity:3];
-    [arguments setObject:key forKey:@"key"];
-    [arguments setObject:delegate forKey:@"delegate"];
+    arguments[@"key"] = key;
+    arguments[@"delegate"] = delegate;
     if (info)
     {
-        [arguments setObject:info forKey:@"userInfo"];
+        arguments[@"userInfo"] = info;
     }
     NSInvocationOperation *operation = SDWIReturnAutoreleased([[NSInvocationOperation alloc] initWithTarget:self
                                                                                                    selector:@selector(queryDiskCacheOperation:)

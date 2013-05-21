@@ -23,11 +23,11 @@ static SDWebImageDecoder *sharedInstance;
 - (void)notifyDelegateOnMainThreadWithInfo:(NSDictionary *)dict
 {
     SDWIRetain(dict);
-    NSDictionary *decodeInfo = [dict objectForKey:DECODE_INFO_KEY];
-    UIImage *decodedImage = [dict objectForKey:DECOMPRESSED_IMAGE_KEY];
+    NSDictionary *decodeInfo = dict[DECODE_INFO_KEY];
+    UIImage *decodedImage = dict[DECOMPRESSED_IMAGE_KEY];
 
-    id <SDWebImageDecoderDelegate> delegate = [decodeInfo objectForKey:DELEGATE_KEY];
-    NSDictionary *userInfo = [decodeInfo objectForKey:USER_INFO_KEY];
+    id <SDWebImageDecoderDelegate> delegate = decodeInfo[DELEGATE_KEY];
+    NSDictionary *userInfo = decodeInfo[USER_INFO_KEY];
 
     [delegate imageDecoder:self didFinishDecodingImage:decodedImage userInfo:userInfo];
     SDWIRelease(dict);
@@ -35,7 +35,7 @@ static SDWebImageDecoder *sharedInstance;
 
 - (void)decodeImageWithInfo:(NSDictionary *)decodeInfo
 {
-    UIImage *image = [decodeInfo objectForKey:IMAGE_KEY];
+    UIImage *image = decodeInfo[IMAGE_KEY];
 
     UIImage *decompressedImage = [UIImage decodedImageWithImage:image];
     if (!decompressedImage)
@@ -44,9 +44,8 @@ static SDWebImageDecoder *sharedInstance;
         decompressedImage = image;
     }
 
-    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                          decompressedImage, DECOMPRESSED_IMAGE_KEY,
-                          decodeInfo, DECODE_INFO_KEY, nil];
+    NSDictionary *dict = @{DECOMPRESSED_IMAGE_KEY: decompressedImage,
+                          DECODE_INFO_KEY: decodeInfo};
 
     [self performSelectorOnMainThread:@selector(notifyDelegateOnMainThreadWithInfo:) withObject:dict waitUntilDone:NO];
 }
@@ -64,10 +63,9 @@ static SDWebImageDecoder *sharedInstance;
 
 - (void)decodeImage:(UIImage *)image withDelegate:(id<SDWebImageDecoderDelegate>)delegate userInfo:(NSDictionary *)info
 {
-    NSDictionary *decodeInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                image, IMAGE_KEY,
-                                delegate, DELEGATE_KEY,
-                                info, USER_INFO_KEY, nil];
+    NSDictionary *decodeInfo = @{IMAGE_KEY: image,
+                                DELEGATE_KEY: delegate,
+                                USER_INFO_KEY: info};
 
     NSOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(decodeImageWithInfo:) object:decodeInfo];
     [imageDecodingQueue addOperation:operation];
