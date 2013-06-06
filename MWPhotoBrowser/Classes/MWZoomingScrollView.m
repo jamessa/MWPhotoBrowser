@@ -29,11 +29,11 @@
 @synthesize photoBrowser = _photoBrowser, photo = _photo, captionView = _captionView;
 
 - (id)initWithPhotoBrowser:(MWPhotoBrowser *)browser {
-    if ((self = [super init])) {
-        
-        // Delegate
-        self.photoBrowser = browser;
-        
+  if ((self = [super init])) {
+    
+    // Delegate
+    self.photoBrowser = browser;
+    
 		// Tap view for background
 		_tapView = [[MWTapDetectingView alloc] initWithFrame:self.bounds];
 		_tapView.tapDelegate = self;
@@ -52,7 +52,7 @@
 		_spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 		_spinner.hidesWhenStopped = YES;
 		_spinner.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+    UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
 		[self addSubview:_spinner];
 		
 		// Setup
@@ -62,24 +62,24 @@
 		self.showsVerticalScrollIndicator = NO;
 		self.decelerationRate = UIScrollViewDecelerationRateFast;
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
-    }
-    return self;
+    
+  }
+  return self;
 }
 
 
 - (void)setPhoto:(id<MWPhoto>)photo {
-    _photoImageView.image = nil; // Release image
-    if (_photo != photo) {
-        _photo = photo;
-    }
-    [self displayImage];
+  _photoImageView.image = nil; // Release image
+  if (_photo != photo) {
+    _photo = photo;
+  }
+  [self displayImage];
 }
 
 - (void)prepareForReuse {
-    self.photo = nil;
-    [_captionView removeFromSuperview];
-    self.captionView = nil;
+  self.photo = nil;
+  [_captionView removeFromSuperview];
+  self.captionView = nil;
 }
 
 #pragma mark - Image
@@ -111,7 +111,7 @@
 			photoImageViewFrame.size = img.size;
 			_photoImageView.frame = photoImageViewFrame;
 			self.contentSize = photoImageViewFrame.size;
-
+      
 			// Set zoom to minimum zoom
 			[self setMaxMinZoomScalesForCurrentBounds];
 			
@@ -144,24 +144,24 @@
 	if (_photoImageView.image == nil) return;
 	
 	// Sizes
-    CGSize boundsSize = self.bounds.size;
-    CGSize imageSize = _photoImageView.frame.size;
-    
-    // Calculate Min
-    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
-    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
-    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
+  CGSize boundsSize = self.bounds.size;
+  CGSize imageSize = _photoImageView.frame.size;
+  
+  // Calculate Min
+  CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
+  CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
+  CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
 	
 	// If image is smaller than the screen then ensure we show it at
 	// min scale of 1
 	if (xScale > 1 && yScale > 1) {
 		minScale = 1.0;
 	}
-    
+  
 	// Calculate Max
 	CGFloat maxScale = 2.0; // Allow double scale
-    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
-    // maximum zoom scale to 0.5.
+  // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
+  // maximum zoom scale to 0.5.
 	if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
 		maxScale = maxScale / [[UIScreen mainScreen] scale];
 	}
@@ -174,7 +174,7 @@
 	// Reset position
 	_photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
 	[self setNeedsLayout];
-
+  
 }
 
 #pragma mark - Layout
@@ -186,28 +186,28 @@
 	
 	// Spinner
 	if (!_spinner.hidden) _spinner.center = CGPointMake(floorf(self.bounds.size.width/2.0),
-													  floorf(self.bounds.size.height/2.0));
+                                                      floorf(self.bounds.size.height/2.0));
 	// Super
 	[super layoutSubviews];
 	
-    // Center the image as it becomes smaller than the size of the screen
-    CGSize boundsSize = self.bounds.size;
-    CGRect frameToCenter = _photoImageView.frame;
-    
-    // Horizontally
-    if (frameToCenter.size.width < boundsSize.width) {
-        frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
+  // Center the image as it becomes smaller than the size of the screen
+  CGSize boundsSize = self.bounds.size;
+  CGRect frameToCenter = _photoImageView.frame;
+  
+  // Horizontally
+  if (frameToCenter.size.width < boundsSize.width) {
+    frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
 	} else {
-        frameToCenter.origin.x = 0;
+    frameToCenter.origin.x = 0;
 	}
-    
-    // Vertically
-    if (frameToCenter.size.height < boundsSize.height) {
-        frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
+  
+  // Vertically
+  if (frameToCenter.size.height < boundsSize.height) {
+    frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
 	} else {
-        frameToCenter.origin.y = 0;
-	}
-    
+    frameToCenter.origin.y = 0;
+  }
+  
 	// Center
 	if (!CGRectEqualToRect(_photoImageView.frame, frameToCenter))
 		_photoImageView.frame = frameToCenter;
@@ -262,19 +262,19 @@
 }
 
 // Image View
-- (void)imageView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch { 
-    [self handleSingleTap:[touch locationInView:imageView]];
+- (void)imageView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch {
+  [self handleSingleTap:[touch locationInView:imageView]];
 }
 - (void)imageView:(UIImageView *)imageView doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:imageView]];
+  [self handleDoubleTap:[touch locationInView:imageView]];
 }
 
 // Background View
 - (void)view:(UIView *)view singleTapDetected:(UITouch *)touch {
-    [self handleSingleTap:[touch locationInView:view]];
+  [self handleSingleTap:[touch locationInView:view]];
 }
 - (void)view:(UIView *)view doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:view]];
+  [self handleDoubleTap:[touch locationInView:view]];
 }
 
 @end
